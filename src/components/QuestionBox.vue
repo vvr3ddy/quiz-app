@@ -1,44 +1,77 @@
 <template>
   <div>
     <b-jumbotron>
-      <template v-slot:lead>Sample Question</template>
-
+      <template v-slot:lead>Question:</template>
+        {{ currentQuestion.question}}
       <hr class="my-4" />
-
-      <div>
-        <b-form-group label="Sample Options">
-          <b-form-radio v-model="selected" name="some-radios" value="A">Option A</b-form-radio>
-          <b-form-radio v-model="selected" name="some-radios" value="B">Option B</b-form-radio>
-        </b-form-group>
-
-        <div class="mt-3">
-          Your Choice:
-          <strong>{{ selected }}</strong>
-        </div>
-      </div>
-      <b-container class="bv-example-row">
-        <b-row>
-          <b-col sm="2">
+      <b-list-group 
+        v-for="(answer,index) in answers" 
+        :key="index"
+        @click.prevent="selectAnswer(index)"
+        :class="[selectedIndex === index ? 'selected':'']"
+      >
+        <b-list-group-item>{{answer}}</b-list-group-item>
+      </b-list-group> 
             <b-button variant="danger" href="#">Clear Choices</b-button>
-          </b-col>
-          <b-col sm="2" offset="2">
             <b-button variant="success" href="#">Submit Test</b-button>
-          </b-col>
-          <b-col sm="2" offset="2">
-            <b-button variant="primary" href="#">Next Question</b-button>
-          </b-col>
-        </b-row>
-      </b-container>
+            <b-button @click ="next" variant="primary" href="#">Next Question</b-button>
     </b-jumbotron>
   </div>
 </template>
 
 <script>
 export default {
+  props: {
+    currentQuestion: Object,
+    next: Function
+  },
+  mounted() {
+    console.log(this.currentQuestion)
+  },
   data() {
     return {
-      selected: "",
-    };
+      selectedIndex: null
+    }
   },
+  computed: {
+    answers() {
+      let answers = [...this.currentQuestion.incorrect_answers]
+      answers.push(this.currentQuestion.correct_answer)
+      return answers
+    },
+    methods: {
+      selectedAnswer(index){
+        this.selectedIndex=index
+        console.log(index)
+      }
+    }
+  }
 };
 </script>
+
+<style lang="css" scoped>
+.list-group {
+  margin-bottom: 15px;
+}
+
+.list-group-item:hover {
+
+  background: #ceb4b4;
+}
+.btn {
+  margin: 2px 5px;
+  cursor: pointer;
+}
+
+.selected {
+  background-color: lightblue;
+}
+
+.correct {
+  background-color: lightgreen;
+}
+
+.incorrect {
+  background-color: red;
+}
+</style>
