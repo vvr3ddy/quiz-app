@@ -1,25 +1,39 @@
 <template>
-  <div>
+  <div class="question-box-container">
     <b-jumbotron>
-      <template v-slot:lead>Question:</template>
-        {{ currentQuestion.question}}
+      <template slot="lead">
+        {{ currentQuestion.question }}
+      </template>
+
       <hr class="my-4" />
-      <b-list-group 
-        v-for="(answer,index) in answers" 
-        :key="index"
-        @click.prevent="selectAnswer(index)"
-        :class="[selectedIndex === index ? 'selected':'']"
+
+      <b-list-group>
+        <b-list-group-item
+          v-for="(answer, index) in answers"
+          :key="index"
+          @click.prevent="selectAnswer(index)"
+          :class="answerClass(index)"
+        >
+          {{ answer }}
+        </b-list-group-item>
+      </b-list-group>
+
+      <b-button
+        variant="primary"
+        @click="submitAnswer"
+        :disabled="selectedIndex === null || answered"
       >
-        <b-list-group-item>{{answer}}</b-list-group-item>
-      </b-list-group> 
-            <b-button variant="danger" href="#">Clear Choices</b-button>
-            <b-button variant="success" href="#">Submit Test</b-button>
-            <b-button @click ="next" variant="primary" href="#">Next Question</b-button>
+        Submit
+      </b-button>
+      <b-button @click="next" variant="success">
+        Next
+      </b-button>
     </b-jumbotron>
   </div>
 </template>
 
 <script>
+import {_} from 'lodash';
 export default {
   props: {
     currentQuestion: Object,
@@ -28,9 +42,16 @@ export default {
   mounted() {
     console.log(this.currentQuestion)
   },
+  watch: {
+    currentQuestion(){
+      this.selectedIndex = null
+      this.shuffleAnswers
+    }
+  },
   data() {
     return {
-      selectedIndex: null
+      selectedIndex: null,
+      shuffledAnswers: []
     }
   },
   computed: {
@@ -40,15 +61,21 @@ export default {
       return answers
     },
     methods: {
-      selectedAnswer(index){
+      selectAnswer(index){
         this.selectedIndex=index
         console.log(index)
+      },
+      shuffleAnswers() {
+        let answers = [...this.currentQuestion.incorrect_answers]
+        this.shuffledAnswers = _.shuffle(answers)
       }
     }
-  }
+  } 
 };
 </script>
 
+
+<!--CSS Here-->
 <style lang="css" scoped>
 .list-group {
   margin-bottom: 15px;
@@ -56,11 +83,11 @@ export default {
 
 .list-group-item:hover {
 
-  background: #ceb4b4;
+  background: #b7ceb4;
+  cursor: pointer;
 }
 .btn {
   margin: 2px 5px;
-  cursor: pointer;
 }
 
 .selected {
